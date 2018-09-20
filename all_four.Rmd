@@ -1,0 +1,58 @@
+---
+title: "all-four.Rmd"
+author: "Ashlee Ebbert"
+date: "September 17, 2018"
+output: html_document
+---
+```{r}
+confidence_interval <- function(x, sd = NA, confidence_level = 0.95) {
+  alpha <- 1 - confidence_level
+  if (!is.na(sd)) {
+    table_value <- qnorm(alpha/2, lower.tail = FALSE)
+  } else {
+    table_value <- qt(alpha/2, df = length(x) - 1, lower.tail = FALSE)
+    sd <- sd(x)
+  }
+  ci <- mean(x) + c(-1, 1) * table_value * sd / sqrt(length(x))
+  names(ci) <- c("Lower Bound", "Upper Bound")
+  ci 
+}
+
+```
+Part 1: toys are equally likely
+Declare variables.
+```{r setup, include=FALSE}
+inst_dist <- numeric(100)
+complete <- 0
+collection <- c(1,2,3,4)
+```
+Create a function with a while loop nested within the for loop.
+```{r}
+all_four <- function(numsamples=1000, probability=rep(.25,4)) {
+for (i in 1:100) { 
+  counter <- 0
+  complete <- 0
+  collection <- c(1,2,3,4)
+  while (complete == 0) {
+    x <- sample(c(1,2,3,4), 1, replace = TRUE)
+    if  (x %in% collection == TRUE) {
+      collection <- replace(collection, x, 0)
+    }
+    if (sum(collection) == 0) {
+      complete = 1
+    }
+    counter <- counter + 1
+  }
+  inst_dist[i] <- counter
+}
+boxes_for_complete_set <- mean(inst_dist)
+new_dist <- inst_dist > 14
+proportion_14_boxes <- mean(new_dist)
+
+ci <- confidence_interval(inst_dist)
+
+return(list(boxes_for_complete_set, proportion_14_boxes, ci))
+}
+all_four()
+
+```

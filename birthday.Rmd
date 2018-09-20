@@ -1,0 +1,47 @@
+---
+title: "birthday.Rmd"
+author: "Ashlee Ebbert"
+date: "September 17, 2018"
+output: html_document
+---
+```{r}
+
+```
+
+Create a function called "birthday"
+```{r}
+birthday <- function(n, nreps) {
+  bday <- sapply(1:nreps, function(x) anyDuplicated(sample(c(1:365), n, replace = TRUE)) > 0)
+prob_same_bday <- mean(bday)
+ci <- prob_same_bday + c(-1, 1) * qnorm(0.975) * sqrt(prob_same_bday * (1 - prob_same_bday)/nreps)
+
+results <- c(prob_same_bday, ci)
+names(results) <- c("Mean", "Lower Limit", "Upper Limit")
+
+return(results)
+}
+
+birthday(16, 1000)
+```
+
+Plot Monte Carlo estimates of this probability (on the y-axis) as a function of n (on the x-axis). Show the lower and upper bounds of your 95% confidence intervals. With a red line, show the true probability 
+```{r}
+x <- c()
+ll <- c()
+ul <- c()
+true_prob <- c()
+for(i in 1:100){
+  x[i] <- birthday(i,1000)[1]
+  ll[i] <- birthday(i,1000)[2]
+  ul[i] <- birthday(i,1000)[3]
+  true_prob[i] <- (1-(364/365)^choose(i,2))
+}
+
+plot(1:100,x, xlab="Room Occupancy", ylab= "Probability of Sharing", type= "l", lty=1, col="black")
+lines(1:100,ll,lty = "longdash", col = "black")
+lines(1:100,ul,lty = "longdash", col = "black")
+lines(1:100,true_prob, type= "l", lty = "solid", col = "red")
+```
+
+
+
